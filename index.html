@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <input id="username" placeholder="Username">
+    <button onclick="window.register()">Register</button>
+    <button onclick="login()">Login</button>
+    <script src="https://cdn.jsdelivr.net/npm/@simplewebauthn/browser/dist/simplewebauthn-browser.min.js"></script>
+    <script>
+        async function register() {
+            const username = document.getElementById("username").value;
+
+            const resp = await fetch(`/generate-registration-options/${username}`);
+            const options = await resp.json();
+
+            const attResp = await SimpleWebAuthnBrowser.startRegistration(options);
+
+            const verification = await fetch(`/verify-registration/${username}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(attResp)
+            });
+
+            const result = await verification.json();
+            alert(result.verified ? "Registered!" : "Failed");
+        }
+
+        async function login() {
+            const username = document.getElementById("username").value;
+
+            const resp = await fetch(`/generate-authentication-options/${username}`);
+            const options = await resp.json();
+
+            // NOTE: browser CDN uses `startAssertion`
+            const authResp = await SimpleWebAuthnBrowser.startAssertion(options);
+
+            const verification = await fetch(`/verify-authentication/${username}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(authResp)
+            });
+
+            const result = await verification.json();
+            alert(result.verified ? "Logged in!" : "Failed");
+        }
+    </script>
+
+</body>
+
+</html>
