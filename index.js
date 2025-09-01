@@ -44,7 +44,7 @@ async function main() {
     app.use('/', authRoutes);
     app.use('/', settingsRoutes);
     app.use(notFoundRoute);
-    
+
     app.listen(PORT, () => {
         console.info(`Server started on port: ${PORT}`);
     });

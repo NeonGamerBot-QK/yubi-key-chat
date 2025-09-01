@@ -40,16 +40,16 @@
                     <li class="nav-item">
                         <a class="nav-link" aria-current="page" href="/" data-page="home">Home</a>
                     </li>
-                    
-                    <% if (typeof user !== "undefined" && user) { %>
+
+                    <% if (typeof user !=="undefined" && user) { %>
                         <li class="nav-item">
                             <a class="nav-link" href="/logout" data-page="login">Logout</a>
                         </li>
-                    <% } else { %>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/login" data-page="login">Login</a>
-                        </li>
-                    <% } %>
+                        <% } else { %>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/login" data-page="login">Login</a>
+                            </li>
+                            <% } %>
                 </ul>
             </div>
         </div>
