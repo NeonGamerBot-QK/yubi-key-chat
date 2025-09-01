@@ -1,0 +1,32 @@
+<!-- views/register.ejs -->
+<div class="col-12 row d-flex align-items-center my-5" >
+    <div class="col-md-4">
+        <img src="assets/login.jpg" class="img-fluid" alt="banner image from freepik" />
+    </div>
+    <div class="col-md-2"></div>
+    <div class="col-md-6 my-5">
+        <% if (error && error.length > 0 ) { %>
+            <div class="alert alert-danger"><%= error %></div>
+        <% } %>
+        <h1 class="text-center py-3">Register</h1>
+        <form action="/register" method="POST">
+            <div class="form-group py-2">
+                <label for="name">Username:</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+            <div class="form-group py-2">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group py-2">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success my-3 col-12">Register with SimplerWebAuthN</button>
+        </form>
+        <div class="text-center">
+            <a class="my-3" href="/login">Login with SimplerWebAuthN</a>
+        </div>
+        
+    </div>
+</div>

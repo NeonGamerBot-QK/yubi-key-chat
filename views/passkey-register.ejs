@@ -1,0 +1,30 @@
+<!-- views/login.ejs -->
+<div class="col-12 row d-flex align-items-center my-5">
+    <div class="col-md-4">
+        <img src="assets/login.jpg" class="img-fluid" alt="banner image from freepik" />
+    </div>
+    <div class="col-md-2"></div>
+    <div class="col-md-6 my-5">
+        <h1 class="text-center py-3">Register With Passkey</h1>
+        <p class="text-center">Register with passkey for easy login</p>
+        <div class="alert alert-danger" id="passkey_error"></div>
+        <form action="/passkey-register" method="POST">
+            <div class="form-group py-2">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" class="form-control" value=<%=user_email %> required>
+            </div>
+            <button type="button" class="btn btn-primary my-3 col-12"
+                onclick="registerWithSimpleWebAuthn('<%= user_email %>');">Register With Passkey</button>
+        </form>
+        <p class="text-center">Or</p>
+        <div class="text-center">
+            <a class="my-3" href="/login">Use Password to Login</a>
+        </div>
+        <div class="text-center mt-5">
+            <small>Don't have an account?<a class="my-3" href="/register">Register Here</a></small>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('passkey_error').style.display = 'none';
+</script>
