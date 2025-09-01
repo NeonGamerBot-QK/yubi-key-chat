@@ -10,8 +10,8 @@
         <div class="alert alert-danger" id="passkey_error"></div>
         <form action="/passkey-login" method="POST">
             <div class="form-group py-2">
-                <label for="email">Email:</label>
-                <input type="email" id="login-email" name="email" class="form-control" required>
+                <label for="email">Yubi key OTP:</label>
+                <input type="email" id="login-yubikey" name="email" class="form-control" required>
             </div>
             <button type="button" class="btn btn-primary my-3 col-12" onclick="authenticateWithSimpleWebAuthn();">Login
                 With Passkey</button>
