@@ -1,5 +1,5 @@
 ok neon what are we doing here
-so 
+so
 its a basic socket io chat app
 w/ rooms
 but
