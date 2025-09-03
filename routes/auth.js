@@ -22,7 +22,7 @@ const getErrorMsg = (error) => {
 const contextBuffer = (buffer) => Buffer.from(buffer, 'base64');
 
 router.get('/login', (req, res) => {
-    res.render('layout', { title: 'Login', view: `login`, error: req.flash('error'), message: req.flash('message') });
+    res.render('layout', { title: 'Login', view: `passkey-login`, error: req.flash('error'), message: req.flash('message') });
 });
 
 router.post('/login', async (req, res) => {
@@ -53,7 +53,7 @@ router.post('/passkey-login', async (req, res) => {
 });
 
 router.get('/register', (req, res) => {
-    res.render('layout', { title: 'Register', view: `register`, error: req.flash('error') });
+    res.render('layout', { title: 'Register', view: `passkey-register`, error: req.flash('error') });
 });
 
 router.post('/register', async (req, res) => {
@@ -112,55 +112,56 @@ router.use(express.json());
 
 router.post('/api/generate-registration-options', async (req, res) => {
     try {
-        const { email } = req.body;
-        const prismaUser = await prisma.user.findUnique({ where: { email } });
-        if (!prismaUser) {
-            return res.status(400).send({ error: "No user with that email exists" });
-        }
-        else {
-            const user = {
-                id: prismaUser.id,
-                username: prismaUser.name,
-                email: prismaUser.email,
-                devices: [],
-            };
+        const { yubikeyOtp } = req.body;
+        // const prismaUser = await prisma.user.findUnique({ login_yubikey: { yubikeyOtp } });
+        // if (!prismaUser) {
+        //     return res.status(400).send({ error: "No user with that email exists" });
+        // }
+        // else {
+        const user = {
+            // id: prismaUser.id,
+            username: yubikeyOtp,
+            // email: prismaUser.email,
+            devices: [],
+        };
 
-            let opts = {
-                rpName: rpName,
-                rpID,
-                userName: user.username,
-                timeout: 60000,
-                attestationType: 'none',
-                excludeCredentials: user.devices.map((dev) => ({
-                    id: dev.credentialID,
-                    type: 'public-key',
-                    transports: dev.transports,
-                })),
-                authenticatorSelection: {
-                    residentKey: 'discouraged',
-                    userVerification: 'preferred',
-                },
-                supportedAlgorithmIDs: [-7, -257],
-            }
-
-            const options = await generateRegistrationOptions(opts);
-            req.session.currentChallenge = options.challenge;
-            req.session.webAuthnUserID = options.user.id;
-            res.send(options);
+        let opts = {
+            rpName: rpName,
+            rpID,
+            userName: user.username,
+            timeout: 60000,
+            attestationType: 'none',
+            excludeCredentials: user.devices.map((dev) => ({
+                id: dev.credentialID,
+                type: 'public-key',
+                transports: dev.transports,
+            })),
+            authenticatorSelection: {
+                residentKey: 'discouraged',
+                userVerification: 'preferred',
+            },
+            supportedAlgorithmIDs: [-7, -257],
         }
+
+        const options = await generateRegistrationOptions(opts);
+        req.session.currentChallenge = options.challenge;
+        req.session.webAuthnUserID = options.user.id;
+        res.send(options);
+        // }
     } catch (error) {
+        console.error(error)
         res.status(400).send({ error: error.message });
     }
 });
 
 router.post('/api/verify-registration', async (req, res) => {
     const { passkey_info, email } = req.body;
-    const prismaUser = await prisma.user.findUnique({ where: { email } });
+    // const prismaUser = await prisma.user.findUnique({ where: { yubikeyOtp: email } });
     const user = {
-        id: prismaUser.id,
-        username: prismaUser.name,
-        email: prismaUser.email,
-        devices: prismaUser.devices,
+        // id: prismaUser.id,
+        username: email,
+        // email: prismaUser.email,
+        // devices: prismaUser.devices,
     };
     const expectedChallenge = req.session.currentChallenge;
 
@@ -228,16 +229,15 @@ router.post('/api/verify-registration', async (req, res) => {
 });
 
 router.post('/api/generate-authentication-options', async (req, res) => {
-    const { email } = req.body;
-    const prismaUser = await prisma.user.findUnique({ where: { email } });
+    const { login_yubikey } = req.body;
+    const prismaUser = await prisma.user.findUnique({ yubikeyOtp: { login_yubikey } });
     if (!prismaUser) {
-        return res.status(400).send({ error: "No user with that email exists" });
+        return res.status(400).send({ error: "No user with that yubikeyOtp exists" });
     }
     else {
         const user = {
             id: prismaUser.id,
-            username: prismaUser.name,
-            email: prismaUser.email,
+            username: prismaUser.yubikeyOtp,
             devices: prismaUser.devices,
         };
         const opts = {

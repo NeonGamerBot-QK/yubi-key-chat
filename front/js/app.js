@@ -9,7 +9,7 @@ const registerWithSimpleWebAuthn = async (email) => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            email: email,
+            yubikeyOtp: email,
         }),
     });
     const responseData = await resp.json();
@@ -53,7 +53,7 @@ const registerWithSimpleWebAuthn = async (email) => {
 }
 
 const authenticateWithSimpleWebAuthn = async () => {
-    const email = document.getElementById("login-email").value;
+    const email = document.getElementById("login-yubikey").value;
     var passkeyError = document.getElementById('passkey_error');
 
     const resp = await fetch('/api/generate-authentication-options', {
@@ -62,7 +62,7 @@ const authenticateWithSimpleWebAuthn = async () => {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            email: email,
+            login_yubikey: email,
         }),
     });
 
