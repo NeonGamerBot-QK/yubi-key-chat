@@ -10,11 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "6.5.0",
     "body-parser": "^2.2.0",
     "dotenv": "^17.2.2",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
+    "prisma": "^6.15.0",
     "yub": "^0.11.1"
   }
 }

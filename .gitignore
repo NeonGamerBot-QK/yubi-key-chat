@@ -1,2 +1,4 @@
 node_modules
 .env
+example.json5
+*.db
