@@ -13,26 +13,24 @@ app.get("/", (req, res) => {
   // res.send("change to rendered");
   // res.render('index');
   if (!req.cookies.serial) {
-    return res.redirect('/login')
+    return res.redirect("/login");
   } else {
-    return res.redirect('/chat')
+    return res.redirect("/chat");
   }
 });
 
-
-app.get('/chat', (req, res) => {
+app.get("/chat", (req, res) => {
   if (!req.cookies.serial) {
-    return res.redirect('/login')
+    return res.redirect("/login");
   }
-})
+});
 
-app.get('/login', (req, res) => {
+app.get("/login", (req, res) => {
   if (req.cookies.serial) {
-    return res.redirect('/chat')
+    return res.redirect("/chat");
   }
-  res.render('index')
-})
-
+  res.render("index");
+});
 
 app.post("/login", async (req, res) => {
   // validate key
@@ -61,12 +59,12 @@ app.post("/login", async (req, res) => {
           // add other fields as necessary
         },
       });
-      // set cookies to be like the login serial idk 
+      // set cookies to be like the login serial idk
       res.cookies.serial = yubData.serial;
       // redirect to dashboard
       res.redirect("/chat");
     } else {
-      // if account exists, up  
+      // if account exists, up
       // update userEntry to update the lastOtp
       prisma.user.update({
         where: {
@@ -79,7 +77,7 @@ app.post("/login", async (req, res) => {
             push: yubData,
           },
         },
-      })
+      });
 
       res.cookies.serial = yubData.serial;
       // redirect to dashboard
@@ -95,4 +93,3 @@ app.post("/login", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
