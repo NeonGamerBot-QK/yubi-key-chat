@@ -1,4 +1,5 @@
 require("dotenv/config");
+
 const express = require("express");
 const { verifyYubiKey } = require("./utils");
 const Prisma = require("@prisma/client").PrismaClient;
@@ -9,9 +10,29 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(express.json());
 app.get("/", (req, res) => {
-  res.send("change to rendered");
+  // res.send("change to rendered");
   // res.render('index');
+  if (!req.cookies.serial) {
+    return res.redirect('/login')
+  } else {
+    return res.redirect('/chat')
+  }
 });
+
+
+app.get('/chat', (req, res) => {
+  if (!req.cookies.serial) {
+    return res.redirect('/login')
+  }
+})
+
+app.get('/login', (req, res) => {
+  if (req.cookies.serial) {
+    return res.redirect('/chat')
+  }
+  res.render('index')
+})
+
 
 app.post("/login", async (req, res) => {
   // validate key
@@ -32,8 +53,37 @@ app.post("/login", async (req, res) => {
       console.log("user not found");
       // erm, time to create there data!
       // res.status(404).json({ message: 'User not found' })
+      await prisma.user.create({
+        data: {
+          serial: yubData.serial,
+          lastOtp: yubData.otp,
+          yubiKeyOtps: [yubData],
+          // add other fields as necessary
+        },
+      });
+      // set cookies to be like the login serial idk 
+      res.cookies.serial = yubData.serial;
+      // redirect to dashboard
+      res.redirect("/chat");
     } else {
-      // if account exists, up
+      // if account exists, up  
+      // update userEntry to update the lastOtp
+      prisma.user.update({
+        where: {
+          serial: yubData.serial,
+        },
+        data: {
+          lastOtp: yubData.otp,
+          // push to array
+          yubiKeyOtps: {
+            push: yubData,
+          },
+        },
+      })
+
+      res.cookies.serial = yubData.serial;
+      // redirect to dashboard
+      res.redirect("/chat");
     }
   } catch (e) {
     console.error(e);
@@ -45,3 +95,4 @@ app.post("/login", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
