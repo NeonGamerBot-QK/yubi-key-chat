@@ -1,18 +1,19 @@
 <div class="m-2 p-2 flex flex-col h-screen">
-    <h1 class="font-bold text-center p-5">Chats:</h1>
+  <h1 class="font-bold text-center p-5">Chats:</h1>
 
-    <!-- Chat container fills remaining space -->
-    <div id="chats" class="flex-1 overflow-y-auto"></div>
+  <!-- Chat container fills remaining space -->
+  <div id="chats" class="flex-1 overflow-y-auto"></div>
 
-    <!-- Input stays at bottom -->
-    <div class="w-full">
-        <input type="text" placeholder="Type here" id="textinput" class="input input-primary w-full" />
-    </div>
+  <!-- Input stays at bottom -->
+  <div class="w-full">
+    <input type="text" placeholder="Type here" id="textinput" class="input input-primary w-full" />
+  </div>
 </div>
 
 <script>
-    const createMessageHtml = (author, message, isMe) => {
-        return `
+  const USERNAME = "<%= username %>";
+  const createMessageHtml = (author, message, isMe) => {
+    return `
       <div class="chat chat-${isMe ? "end" : "start"}">
         <div class="chat-header">
           ${author}
@@ -23,32 +24,34 @@
         <div class="chat-bubble">${message}</div>
       </div>
     `;
-    };
+  };
 
-    const chats = document.getElementById("chats");
-    const socket = io();
-    socket.on('message', (msg, author) => {
-        chats.innerHTML += createMessageHtml(msg, author, false);
-        chats.scrollTop = chats.scrollHeight; // Auto scroll to bottom
-    });
-    // Add example message
-    chats.innerHTML += createMessageHtml("You", "Hello", true);
-    chats.scrollTop = chats.scrollHeight;
+  const chats = document.getElementById("chats");
+  const socket = io();
+  socket.on('chat message', (msg, author) => {
+    // if (author == USERNAME) return;
+    chats.innerHTML += createMessageHtml(`[${author}]`, msg, author == USERNAME);
+    chats.scrollTop = chats.scrollHeight; // Auto scroll to bottom
+  });
+  // // Add example message
+  // chats.innerHTML += createMessageHtml("You", "Hello", true);
+  // chats.scrollTop = chats.scrollHeight;
 
-    // Input handler
-    document.querySelector('#textinput').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const message = e.target.value.trim();
-            if (message.length === 0) return;
+  // Input handler
+  document.querySelector('#textinput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const message = e.target.value.trim();
+      if (message.length === 0) return;
 
-            chats.innerHTML += createMessageHtml("You", message, true);
-            e.target.value = '';
+      // chats.innerHTML += createMessageHtml("You", message, true);
+      socket.emit("chat message", message, USERNAME)
+      e.target.value = '';
 
-            // Auto scroll to bottom
-            chats.scrollTop = chats.scrollHeight;
+      // Auto scroll to bottom
+      chats.scrollTop = chats.scrollHeight;
 
-            // If using sockets:
-            // socket.emit('message', createMessageHtml("User", message, false));
-        }
-    });
+      // If using sockets:
+      // socket.emit('message', createMessageHtml("User", message, false));
+    }
+  });
 </script>

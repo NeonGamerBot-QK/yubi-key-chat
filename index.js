@@ -15,9 +15,27 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(async (req, res, next) => {
+  if (req.cookies.serial && !req.cookies.identity) {
+    res.clearCookie('serial');
+    return res.redirect('/login')
+  }
+  if (req.cookies.identity) {
+    const user_info = await prisma.user.findFirst({
+      where: {
+        serial: req.cookies.serial,
+        identityString: req.cookies.identity
+      }
+    })
+    if (!user_info) {
+      res.clearCookie('serial');
+      res.clearCookie('identity');
+      return res.redirect('/login')
+    }
+  }
+  next()
+})
 app.get("/", (req, res) => {
-  // res.send("change to rendered");
-  // res.render('index');
   if (!req.cookies.serial) {
     return res.redirect("/login");
   } else {
@@ -30,7 +48,7 @@ app.get("/chat", (req, res) => {
     return res.redirect("/login");
   }
   // res.send('chat')
-  res.render("layout", { title: "Chat", file: "index.ejs" });
+  res.render("layout", { title: "Chat", file: "index.ejs", username: req.cookies.serial });
 });
 
 app.get("/login", (req, res) => {
@@ -72,6 +90,7 @@ app.post("/login", async (req, res) => {
       // set cookies to be like the login serial idk
       // req.cookies.serial = yubData.serial;
       res.cookie("serial", yubData.serial, { maxAge: 900000, httpOnly: true });
+      res.cookie("identity", yubData.identity, { maxAge: 900000, httpOnly: true });
       // redirect to dashboard
       res.redirect("/chat");
     } else {
@@ -91,6 +110,7 @@ app.post("/login", async (req, res) => {
       });
 
       res.cookie("serial", yubData.serial, { maxAge: 900000, httpOnly: true });
+      res.cookie("identity", yubData.identity, { maxAge: 900000, httpOnly: true });
       // redirect to dashboard
       res.redirect("/chat");
     }
@@ -113,6 +133,11 @@ io.on("connection", (socket) => {
   });
   socket.on("chat message", (msg, author) => {
     io.emit("chat message", msg, author);
+    // add to last 10 msgs
+    last_10_msgs.push({ msg, author })
+    if (last_10_msgs.length > 10) {
+      last_10_msgs.shift();
+    }
   });
 });
 // verifyYubiKey
