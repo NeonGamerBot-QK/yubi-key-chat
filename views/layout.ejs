@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -7,6 +7,8 @@
     <title>
         <%= title %>
     </title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- meta tags -->
     <meta name="title" content="Yubi key app">
     <meta name="description" content="Chat with other yubi key users!">
@@ -19,7 +21,7 @@
 </head>
 
 <body>
-    <%- body %>
+    <%- include(file) %>
 </body>
 
 </html>
